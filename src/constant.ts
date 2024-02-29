@@ -29,3 +29,4 @@ export const BITCOIN_RPC_PASS = process.env.BITCOIN_RPC_PASS || '';
 export const BITCOIN_RPC_TIMEOUT = Number(
   process.env.BITCOIN_RPC_TIMEOUT ?? 120000,
 );
+export const LITECOIN_NETWORK = process.env.LTC_NETWORK;
