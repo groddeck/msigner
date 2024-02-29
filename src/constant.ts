@@ -13,7 +13,7 @@ export const ORDINALS_API_URL =
 export const PLATFORM_FEE_ADDRESS = process.env.PLATFORM_FEE_ADDRESS || '';
 export const DUMMY_UTXO_VALUE = Number(process.env.DUMMY_UTXO_VALUE ?? 600);
 export const DUMMY_UTXO_MAX_VALUE = Number(
-  process.env.DUMMY_UTXO_MAX_VALUE ?? 1000,
+  process.env.DUMMY_UTXO_MAX_VALUE ?? 3000 //1000,
 );
 export const DUMMY_UTXO_MIN_VALUE = Number(
   process.env.DUMMY_UTXO_MIN_VALUE ?? 580,
@@ -29,4 +29,3 @@ export const BITCOIN_RPC_PASS = process.env.BITCOIN_RPC_PASS || '';
 export const BITCOIN_RPC_TIMEOUT = Number(
   process.env.BITCOIN_RPC_TIMEOUT ?? 120000,
 );
-export const LITECOIN_NETWORK = process.env.LTC_NETWORK;

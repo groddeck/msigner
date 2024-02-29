@@ -14,5 +14,4 @@ export declare const BITCOIN_RPC_PORT: number;
 export declare const BITCOIN_RPC_USER: string;
 export declare const BITCOIN_RPC_PASS: string;
 export declare const BITCOIN_RPC_TIMEOUT: number;
-export declare const LITECOIN_NETWORK: string | undefined;
 //# sourceMappingURL=constant.d.ts.map

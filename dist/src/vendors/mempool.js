@@ -24,19 +24,20 @@ async function getMempoolTxIds() {
 }
 exports.getMempoolTxIds = getMempoolTxIds;
 async function getFees(feeRateTier) {
-    const res = await exports.mempoolBitcoin.fees.getFeesRecommended();
-    switch (feeRateTier) {
-        case 'fastestFee':
-            return res.fastestFee;
-        case 'halfHourFee':
-            return res.halfHourFee;
-        case 'hourFee':
-            return res.hourFee;
-        case 'minimumFee':
-            return res.minimumFee;
-        default:
-            return res.hourFee;
-    }
+    // const res = await mempoolBitcoin.fees.getFeesRecommended();
+    // switch (feeRateTier) {
+    //   case 'fastestFee':
+    //     return res.fastestFee;
+    //   case 'halfHourFee':
+    //     return res.halfHourFee;
+    //   case 'hourFee':
+    //     return res.hourFee;
+    //   case 'minimumFee':
+    //     return res.minimumFee;
+    //   default:
+    //     return res.hourFee;
+    // }
+    return 1;
 }
 exports.getFees = getFees;
 //# sourceMappingURL=mempool.js.map

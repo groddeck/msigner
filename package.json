@@ -22,6 +22,7 @@
   "dependencies": {
     "@mempool/mempool.js": "^2.3.0",
     "bitcoinjs-lib": "^6.1.0",
+    "ltc-bitcoinjs-lib": "^3.3.10",
     "rpc-bitcoin": "^2.0.0",
     "tiny-secp256k1": "^2.2.0"
   },

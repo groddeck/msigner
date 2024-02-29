@@ -23,9 +23,9 @@ var __importStar = (this && this.__importStar) || function (mod) {
     return result;
 };
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.isP2SHAddress = exports.mapUtxos = exports.generateTxidFromHash = exports.btcToSats = exports.satToBtc = exports.toXOnly = void 0;
+exports.isP2SHAddress = exports.mapUtxos = exports.getTxHexById = exports.baseMempoolApiUrl = exports.generateTxidFromHash = exports.btcToSats = exports.satToBtc = exports.toXOnly = void 0;
 const bitcoin = __importStar(require("bitcoinjs-lib"));
-const fullnoderpc_1 = require("./vendors/fullnoderpc");
+// import { FullnodeRPC } from './vendors/fullnoderpc';
 const toXOnly = (pubKey) => pubKey.length === 32 ? pubKey : pubKey.subarray(1, 33);
 exports.toXOnly = toXOnly;
 const satToBtc = (sat) => sat / 100000000;
@@ -36,6 +36,12 @@ function generateTxidFromHash(hash) {
     return hash.reverse().toString('hex');
 }
 exports.generateTxidFromHash = generateTxidFromHash;
+exports.baseMempoolApiUrl = 'https://litecoinspace.org/api';
+async function getTxHexById(txId) {
+    let txHexById = await fetch(`${exports.baseMempoolApiUrl}/tx/${txId}/hex`).then((response) => response.text());
+    return txHexById;
+}
+exports.getTxHexById = getTxHexById;
 async function mapUtxos(utxosFromMempool) {
     const ret = [];
     for (const utxoFromMempool of utxosFromMempool) {
@@ -44,7 +50,9 @@ async function mapUtxos(utxosFromMempool) {
             vout: utxoFromMempool.vout,
             value: utxoFromMempool.value,
             status: utxoFromMempool.status,
-            tx: bitcoin.Transaction.fromHex(await fullnoderpc_1.FullnodeRPC.getrawtransaction(utxoFromMempool.txid)),
+            tx: bitcoin.Transaction.fromHex(
+            // await FullnodeRPC.getrawtransaction(utxoFromMempool.txid),
+            await getTxHexById(utxoFromMempool.txid)),
         });
     }
     return ret;

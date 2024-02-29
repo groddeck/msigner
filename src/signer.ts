@@ -1,5 +1,7 @@
 import { AddressTxsUtxo } from '@mempool/mempool.js/lib/interfaces/bitcoin/addresses';
 import * as bitcoin from 'bitcoinjs-lib';
+// import * as litecoin from 'ltc-bitcoinjs-lib';
+const litecoin = require('ltc-bitcoinjs-lib');
 import * as ecc from 'tiny-secp256k1';
 import {
   BTC_NETWORK,
@@ -18,6 +20,7 @@ import {
   mapUtxos,
   satToBtc,
   toXOnly,
+  getTxHexById,
 } from './util';
 import {
   calculateTxBytesFee,
@@ -41,8 +44,8 @@ bitcoin.initEccLib(ecc);
 
 const network =
   BTC_NETWORK === 'mainnet'
-    ? bitcoin.networks.bitcoin
-    : bitcoin.networks.testnet;
+    ? litecoin.networks.bitcoin
+    : litecoin.networks.testnet;
 
 export namespace SellerSigner {
   export async function generateUnsignedListingPSBTBase64(
@@ -131,12 +134,18 @@ export namespace SellerSigner {
     });
 
     // verify signatures valid, so that the psbt is signed by the item owner
-    if (
-      (await FullnodeRPC.analyzepsbt(req.signedListingPSBTBase64))?.inputs[0]
-        ?.is_final !== true
-    ) {
-      throw new InvalidArgumentError(`Invalid signature`);
+    const sellerInput = psbt.txInputs[0];
+    const sellerSignedPsbtInput = `${sellerInput.hash.reverse().toString("hex")}:${sellerInput.index}`;
+    if (sellerSignedPsbtInput != req.tokenId) {
+        // throw `Seller signed PSBT does not match this inscription\n\n${sellerSignedPsbtInput}\n!=\n${utxo}`;
+        throw new InvalidArgumentError(`Invalid signature`);
     }
+    // if (
+    //   (await FullnodeRPC.analyzepsbt(req.signedListingPSBTBase64))?.inputs[0]
+    //     ?.is_final !== true
+    // ) {
+    //   throw new InvalidArgumentError(`Invalid signature`);
+    // }
 
     // verify that the input's sellerOrdAddress is the same as the sellerOrdAddress of the utxo
     if (psbt.inputCount !== 1) {
@@ -172,9 +181,12 @@ export namespace SellerSigner {
     // verify that the seller address is a match
     const sellerAddressFromPSBT = bitcoin.address.fromOutputScript(
       bitcoin.Transaction.fromHex(
-        await FullnodeRPC.getrawtransaction(
-          generateTxidFromHash(psbt.txInputs[0].hash),
-        ),
+        // await FullnodeRPC.getrawtransaction(
+        //   generateTxidFromHash(psbt.txInputs[0].hash),
+        // ),
+        await getTxHexById(
+            generateTxidFromHash(psbt.txInputs[0].hash)
+        )
       ).outs[psbt.txInputs[0].index].script,
       network,
     );

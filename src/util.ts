@@ -1,7 +1,7 @@
 import { AddressTxsUtxo } from '@mempool/mempool.js/lib/interfaces/bitcoin/addresses';
 import * as bitcoin from 'bitcoinjs-lib';
 import { utxo } from './interfaces';
-import { FullnodeRPC } from './vendors/fullnoderpc';
+// import { FullnodeRPC } from './vendors/fullnoderpc';
 
 export const toXOnly = (pubKey: Buffer) =>
   pubKey.length === 32 ? pubKey : pubKey.subarray(1, 33);
@@ -11,6 +11,16 @@ export const btcToSats = (btc: number) => btc * 100000000;
 
 export function generateTxidFromHash(hash: Buffer) {
   return hash.reverse().toString('hex');
+}
+
+export const baseMempoolApiUrl = 'https://litecoinspace.org/api';
+
+export async function getTxHexById(txId:string) {
+  let txHexById = await fetch(
+    `${baseMempoolApiUrl}/tx/${txId}/hex`
+  ).then((response) => response.text());
+
+  return txHexById;
 }
 
 export async function mapUtxos(
@@ -24,7 +34,8 @@ export async function mapUtxos(
       value: utxoFromMempool.value,
       status: utxoFromMempool.status,
       tx: bitcoin.Transaction.fromHex(
-        await FullnodeRPC.getrawtransaction(utxoFromMempool.txid),
+        // await FullnodeRPC.getrawtransaction(utxoFromMempool.txid),
+        await getTxHexById(utxoFromMempool.txid)
       ),
     });
   }

@@ -25,6 +25,8 @@ var __importStar = (this && this.__importStar) || function (mod) {
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.BuyerSigner = exports.SellerSigner = void 0;
 const bitcoin = __importStar(require("bitcoinjs-lib"));
+// import * as litecoin from 'ltc-bitcoinjs-lib';
+const litecoin = require('ltc-bitcoinjs-lib');
 const ecc = __importStar(require("tiny-secp256k1"));
 const constant_1 = require("./constant");
 const util_1 = require("./util");
@@ -34,8 +36,8 @@ const mempool_1 = require("./vendors/mempool");
 const interfaces_1 = require("./interfaces");
 bitcoin.initEccLib(ecc);
 const network = constant_1.BTC_NETWORK === 'mainnet'
-    ? bitcoin.networks.bitcoin
-    : bitcoin.networks.testnet;
+    ? litecoin.networks.bitcoin
+    : litecoin.networks.testnet;
 var SellerSigner;
 (function (SellerSigner) {
     async function generateUnsignedListingPSBTBase64(listing) {
@@ -94,10 +96,18 @@ var SellerSigner;
             }
         });
         // verify signatures valid, so that the psbt is signed by the item owner
-        if ((await fullnoderpc_1.FullnodeRPC.analyzepsbt(req.signedListingPSBTBase64))?.inputs[0]
-            ?.is_final !== true) {
+        const sellerInput = psbt.txInputs[0];
+        const sellerSignedPsbtInput = `${sellerInput.hash.reverse().toString("hex")}:${sellerInput.index}`;
+        if (sellerSignedPsbtInput != req.tokenId) {
+            // throw `Seller signed PSBT does not match this inscription\n\n${sellerSignedPsbtInput}\n!=\n${utxo}`;
             throw new interfaces_1.InvalidArgumentError(`Invalid signature`);
         }
+        // if (
+        //   (await FullnodeRPC.analyzepsbt(req.signedListingPSBTBase64))?.inputs[0]
+        //     ?.is_final !== true
+        // ) {
+        //   throw new InvalidArgumentError(`Invalid signature`);
+        // }
         // verify that the input's sellerOrdAddress is the same as the sellerOrdAddress of the utxo
         if (psbt.inputCount !== 1) {
             throw new interfaces_1.InvalidArgumentError(`Invalid number of inputs`);
@@ -121,7 +131,11 @@ var SellerSigner;
             throw new interfaces_1.InvalidArgumentError(`Invalid sellerReceiveAddress`);
         }
         // verify that the seller address is a match
-        const sellerAddressFromPSBT = bitcoin.address.fromOutputScript(bitcoin.Transaction.fromHex(await fullnoderpc_1.FullnodeRPC.getrawtransaction((0, util_1.generateTxidFromHash)(psbt.txInputs[0].hash))).outs[psbt.txInputs[0].index].script, network);
+        const sellerAddressFromPSBT = bitcoin.address.fromOutputScript(bitcoin.Transaction.fromHex(
+        // await FullnodeRPC.getrawtransaction(
+        //   generateTxidFromHash(psbt.txInputs[0].hash),
+        // ),
+        await (0, util_1.getTxHexById)((0, util_1.generateTxidFromHash)(psbt.txInputs[0].hash))).outs[psbt.txInputs[0].index].script, network);
         if (ordItem?.owner !== sellerAddressFromPSBT) {
             throw new interfaces_1.InvalidArgumentError(`Invalid seller address`);
         }
